@@ -1,0 +1,12 @@
+{"question": "Which company did Priya Sharma work at most recently?", "expected_file": "resume_priya_sharma.txt", "expected_snippet": "Northwind Analytics", "doc_type": "resume"}
+{"question": "What AWS certification does Priya hold?", "expected_file": "resume_priya_sharma.txt", "expected_snippet": "AWS Certified Solutions Architect", "doc_type": "resume"}
+{"question": "How many days of paid annual leave do full-time employees get?", "expected_file": "hr_leave_policy.md", "expected_snippet": "24 days of paid annual leave", "doc_type": "policy"}
+{"question": "How much is the monthly internet stipend for remote employees?", "expected_file": "hr_leave_policy.md", "expected_snippet": "$40", "doc_type": "policy"}
+{"question": "When is a medical certificate required for sick leave?", "expected_file": "hr_leave_policy.md", "expected_snippet": "longer than 3 consecutive days", "doc_type": "policy"}
+{"question": "What hourly fee does the Client pay the Contractor?", "expected_file": "service_agreement.txt", "expected_snippet": "$120 per hour", "doc_type": "contract"}
+{"question": "How much written notice is needed to terminate the agreement?", "expected_file": "service_agreement.txt", "expected_snippet": "60 days' written notice", "doc_type": "contract"}
+{"question": "What is the API rate limit per minute?", "expected_file": "api_guide.md", "expected_snippet": "100 requests per minute", "doc_type": "technical"}
+{"question": "Which header carries the API key?", "expected_file": "api_guide.md", "expected_snippet": "X-API-Key", "doc_type": "technical"}
+{"question": "What is the default request timeout setting?", "expected_file": "api_guide.md", "expected_snippet": "The default is 30 seconds", "doc_type": "technical"}
+{"question": "Which columns does the sales spreadsheet have?", "expected_file": "sales.csv", "expected_snippet": "units_sold", "doc_type": "spreadsheet"}
+{"question": "Which column in the sales file holds the price of each product?", "expected_file": "sales.csv", "expected_snippet": "unit_price", "doc_type": "spreadsheet"}

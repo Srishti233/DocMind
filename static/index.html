@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocMind</title>
+<style>
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#1c2330;--mute:#667085;--line:#e3e6eb;--acc:#3b5bdb;--acc2:#edf1ff;--bad:#c92a2a;--ok:#2b8a3e;--warn:#e67700}
+@media(prefers-color-scheme:dark){:root{--bg:#12151b;--panel:#1b2029;--ink:#e8ebf0;--mute:#98a2b3;--line:#2b3240;--acc:#7c93ff;--acc2:#222a45;--bad:#ff8787;--ok:#69db7c;--warn:#ffa94d}}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+.app{display:grid;grid-template-columns:320px 1fr;height:100%}
+.side{background:var(--panel);border-right:1px solid var(--line);padding:14px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.main{display:flex;flex-direction:column;min-width:0;height:100%}
+h1{font-size:18px;margin:0}h2{font-size:12px;margin:0 0 6px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+select,input,button,textarea{font:inherit;color:inherit}
+select,input[type=text],textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:100%}
+button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:7px 12px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}button:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:6px;align-items:center}
+.drop{border:2px dashed var(--line);border-radius:10px;padding:16px;text-align:center;color:var(--mute);cursor:pointer}
+.drop.over{border-color:var(--acc);background:var(--acc2)}
+.doc{border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.doc .name{font-weight:600;word-break:break-all}
+.badge{font-size:11px;padding:1px 7px;border-radius:99px;background:var(--acc2);color:var(--acc);white-space:nowrap}
+.st-done{color:var(--ok)}.st-failed{color:var(--bad)}.st-queued,.st-processing{color:var(--warn)}
+.tabs{display:flex;border-bottom:1px solid var(--line);background:var(--panel)}
+.tab{padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;color:var(--mute)}.tab.on{color:var(--ink);border-color:var(--acc)}
+.pane{flex:1;overflow:auto;padding:16px;display:none}.pane.on{display:block}
+.msg{max-width:820px;margin:0 auto 14px}.msg .who{font-size:12px;color:var(--mute);margin-bottom:2px}
+.bubble{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;white-space:pre-wrap;word-break:break-word}
+.msg.user .bubble{background:var(--acc2)}
+.cite{background:var(--acc);color:#fff;border-radius:6px;padding:0 6px;margin:0 1px;font-size:12px;cursor:pointer;border:0}
+.meta{font-size:12px;color:var(--mute);margin-top:4px}
+.composer{border-top:1px solid var(--line);background:var(--panel);padding:10px;display:grid;grid-template-columns:1fr auto;gap:8px}
+.filters{display:flex;gap:8px;padding:8px 10px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}.filters select{width:auto;min-width:140px}
+.panel{position:fixed;top:0;right:0;height:100%;width:min(440px,100%);background:var(--panel);border-left:1px solid var(--line);box-shadow:-8px 0 24px #0003;padding:16px;overflow:auto;transform:translateX(105%);transition:transform .2s}
+.panel.open{transform:none}.panel h3{margin:0 0 6px;font-size:15px}
+.passage{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px}
+mark{background:#ffe066;color:#111;border-radius:3px}
+.warnbox{background:#fff3bf;color:#7a5200;border-radius:8px;padding:6px 10px;margin:8px 0;font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}
+.banner{background:#fff3bf;color:#7a5200;padding:6px 12px;font-size:13px;display:none}
+@media(max-width:800px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}.side{max-height:42vh;border-right:0;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div><h1>DocMind</h1><div class="meta" id="mem"></div></div>
+    <div><h2>Workspace</h2>
+      <div class="row"><select id="ws"></select><button class="ghost" id="newws" title="New workspace">+</button></div></div>
+    <div><h2>Upload</h2>
+      <div class="drop" id="drop">Drop files here or click<br><small id="ext"></small></div>
+      <input type="file" id="file" multiple hidden></div>
+    <div id="uploads"></div>
+    <div><h2>Documents</h2><div id="docs"></div></div>
+  </aside>
+  <section class="main">
+    <div class="banner" id="banner"></div>
+    <div class="tabs"><div class="tab on" data-p="chat">Chat</div><div class="tab" data-p="recent">Recent queries</div></div>
+    <div class="filters">
+      <select id="ftype"><option value="">All document types</option></select>
+      <select id="ffile"><option value="">All files</option></select>
+    </div>
+    <div class="pane on" id="chat"></div>
+    <div class="pane" id="recent"></div>
+    <div class="composer" id="composer">
+      <textarea id="q" rows="2" placeholder="Ask about your documents…"></textarea>
+      <button id="send">Send</button>
+    </div>
+  </section>
+</div>
+<aside class="panel" id="panel"><div class="row" style="justify-content:space-between"><h3 id="ptitle"></h3><button class="ghost" id="pclose">✕</button></div><div id="pbody"></div></aside>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const session=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2));
+let ws="", docs=[], pollTimer=null, busy=false, lastSources=[];
+function el(tag,attrs={},...kids){const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v)}for(const c of kids)e.append(c);return e}
+async function api(path,opt){const r=await fetch(path,opt);if(!r.ok){let m=r.statusText;try{m=(await r.json()).detail||m}catch{}throw new Error(m)}return r.json()}
+
+async function init(){
+  const cfg=await api("/config");
+  $("#ext").textContent=cfg.extensions.join(" ")+" · max "+cfg.max_upload_mb+" MB";
+  for(const t of cfg.doc_types)$("#ftype").append(el("option",{value:t},t));
+  await loadWorkspaces(cfg.default_workspace);
+  health();setInterval(health,30000);
+}
+async function health(){
+  try{const h=await api("/health");$("#mem").textContent=`RAM ${h.rss_mb} MB · Ollama ${h.ollama.reachable?"up":"down"}`;
+    const b=$("#banner");b.style.display=h.message?"block":"none";b.textContent=h.message||""}catch{}
+}
+async function loadWorkspaces(sel){
+  const list=await api("/workspaces");const s=$("#ws");s.replaceChildren();
+  for(const w of list)s.append(el("option",{value:w},w));
+  ws=list.includes(sel)?sel:list[0];s.value=ws;await refreshDocs();
+}
+$("#ws").onchange=e=>{ws=e.target.value;refreshDocs()};
+$("#newws").onclick=async()=>{const n=prompt("New workspace name");if(!n||!n.trim())return;const s=$("#ws");
+  if(![...s.options].some(o=>o.value===n.trim()))s.append(el("option",{value:n.trim()}));s.value=ws=n.trim();refreshDocs()};
+
+async function refreshDocs(){
+  docs=await api("/documents?workspace="+encodeURIComponent(ws));renderDocs();
+  const f=$("#ffile"),cur=f.value;f.replaceChildren(el("option",{value:""},"All files"));
+  for(const d of docs.filter(d=>d.status==="done"))f.append(el("option",{value:d.filename},d.filename));
+  f.value=[...f.options].some(o=>o.value===cur)?cur:"";
+  schedulePoll();
+}
+function renderDocs(){
+  const box=$("#docs");box.replaceChildren();
+  if(!docs.length)box.append(el("div",{class:"meta"},"No documents yet."));
+  for(const d of docs){
+    box.append(el("div",{class:"doc"},
+      el("div",{class:"name"},d.filename),
+      el("div",{class:"row"},
+        d.doc_type?el("span",{class:"badge"},d.doc_type):"",
+        el("span",{class:"st-"+d.status},d.status),
+        d.n_chunks?el("span",{class:"meta"},d.n_chunks+" chunks"):""),
+      d.error?el("div",{class:"st-failed"},d.error):"",
+      el("button",{class:"ghost",onclick:()=>del(d)},"Delete")));
+  }
+}
+async function del(d){if(!confirm("Delete "+d.filename+"?"))return;try{await api("/documents/"+d.doc_id,{method:"DELETE"})}catch(e){alert(e.message)}refreshDocs()}
+// polling: at most once per 2 s, and only while something is queued/processing
+function schedulePoll(){
+  clearTimeout(pollTimer);
+  if(docs.some(d=>d.status==="queued"||d.status==="processing"))pollTimer=setTimeout(refreshDocs,2000);
+}
+
+const drop=$("#drop"),fin=$("#file");
+drop.onclick=()=>fin.click();
+drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};
+drop.ondragleave=()=>drop.classList.remove("over");
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");upload([...e.dataTransfer.files])};
+fin.onchange=()=>{upload([...fin.files]);fin.value=""};
+async function upload(files){
+  for(const f of files){
+    const status=el("span",{class:"st-queued"},"uploading…");
+    const row=el("div",{class:"doc"},el("div",{class:"name"},f.name),status);$("#uploads").prepend(row);
+    const fd=new FormData();fd.append("file",f);fd.append("workspace",ws);
+    try{
+      const r=await api("/documents",{method:"POST",body:fd});
+      status.className="st-queued";status.textContent=r.duplicate?"duplicate (already indexed)":(r.action==="replaced"?"replaced old version, queued":"queued");
+    }catch(e){status.className="st-failed";status.textContent=e.message}
+    setTimeout(()=>row.remove(),8000);
+  }
+  refreshDocs();
+}
+
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));
+  document.querySelectorAll(".pane").forEach(p=>p.classList.toggle("on",p.id===t.dataset.p));
+  $("#composer").style.display=t.dataset.p==="chat"?"grid":"none";
+  if(t.dataset.p==="recent")loadRecent();
+});
+async function loadRecent(){
+  const rows=await api("/metrics/recent?limit=30&workspace="+encodeURIComponent(ws));const p=$("#recent");p.replaceChildren();
+  if(!rows.length){p.append(el("div",{class:"meta"},"No queries yet."));return}
+  const tb=el("table");tb.append(el("tr",{},...["When","Question","Route","Total","Answer"].map(h=>el("th",{},h))));
+  for(const r of rows){
+    tb.append(el("tr",{},el("td",{},new Date(r.ts*1000).toLocaleTimeString()),
+      el("td",{},r.question),el("td",{},r.route+(r.cached?" (cache)":"")),
+      el("td",{},r.latencies&&r.latencies.total_ms!=null?Math.round(r.latencies.total_ms)+" ms":""),
+      el("td",{},(r.error?"⚠ "+r.error:(r.answer||"")).slice(0,160))));
+  }
+  p.append(tb);
+}
+
+function addMsg(role,text){
+  const b=el("div",{class:"bubble"},text),m=el("div",{class:"msg "+role},el("div",{class:"who"},role==="user"?"You":"DocMind"),b);
+  const c=$("#chat");c.append(m);c.scrollTop=c.scrollHeight;return{m,b};
+}
+function renderCited(b,text,sources){
+  b.replaceChildren();
+  for(const part of text.split(/(\[\d+\])/)){
+    const m=part.match(/^\[(\d+)\]$/);
+    if(m&&sources.some(s=>s.n==+m[1]))b.append(el("button",{class:"cite",onclick:()=>openSource(sources.find(s=>s.n==+m[1]))},part));
+    else b.append(document.createTextNode(part));
+  }
+}
+function openSource(s){
+  $("#ptitle").textContent=`[${s.n}] ${s.filename}`;
+  const body=$("#pbody");body.replaceChildren(
+    el("div",{class:"meta"},`page: ${s.page??"–"} · section: ${s.section||"–"} · type: ${s.doc_type||"–"} · score: ${s.score}`));
+  if(s.flagged)body.append(el("div",{class:"warnbox"},"⚠ This passage contains instruction-like text. It was treated as data, not as instructions."));
+  const pass=el("div",{class:"passage"});const i=s.snippet?s.passage.indexOf(s.snippet.slice(0,120)):-1;
+  if(i>=0){pass.append(document.createTextNode(s.passage.slice(0,i)),el("mark",{},s.passage.slice(i,i+Math.min(s.snippet.length,s.passage.length-i))),document.createTextNode(s.passage.slice(i+s.snippet.length)))}
+  else pass.textContent=s.passage;
+  body.append(pass);$("#panel").classList.add("open");
+}
+$("#pclose").onclick=()=>$("#panel").classList.remove("open");
+
+async function send(){
+  const q=$("#q").value.trim();if(!q||busy)return;busy=true;$("#send").disabled=true;$("#q").value="";
+  addMsg("user",q);const {m,b}=addMsg("bot","…");let text="",first=true;
+  try{
+    const r=await fetch("/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      question:q,workspace:ws,doc_type:$("#ftype").value||null,filename:$("#ffile").value||null,session_id:session})});
+    if(!r.ok){let d=r.statusText;try{d=(await r.json()).detail||d}catch{}throw new Error(d)}
+    const rd=r.body.getReader(),dec=new TextDecoder();let buf="";
+    while(true){
+      const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});
+      let i;while((i=buf.indexOf("\n\n"))>=0){
+        const chunk=buf.slice(0,i);buf=buf.slice(i+2);
+        const ev=(chunk.match(/^event: (.*)$/m)||[])[1],data=(chunk.match(/^data: (.*)$/m)||[])[1];
+        if(!data)continue;const o=JSON.parse(data);
+        if(ev==="status"&&first)b.textContent="… "+o.stage;
+        else if(ev==="token"){if(first){text="";first=false}text+=o.text;b.textContent=text;$("#chat").scrollTop=1e9}
+        else if(ev==="final"){
+          lastSources=o.sources;renderCited(b,o.answer,o.sources);
+          const uncited=o.sources.filter(s=>!s.cited);
+          m.append(el("div",{class:"meta"},`route: ${o.route}${o.cached?" · cached":""} · ${Math.round(o.latency_ms.total_ms||0)} ms`+(o.rewritten!==q?` · understood as: "${o.rewritten}"`:"")));
+          if(o.sources.length){const row=el("div",{class:"meta"},"Sources: ");
+            for(const s of o.sources)row.append(el("button",{class:"cite",title:s.filename,onclick:()=>openSource(s)},"["+s.n+"]"),document.createTextNode(" "+s.filename+(s.page?" p."+s.page:"")+"  "));
+            m.append(row)}
+        }
+        else if(ev==="error"){b.textContent="⚠ "+o.message;b.style.color="var(--bad)"}
+      }
+    }
+  }catch(e){b.textContent="⚠ "+e.message;b.style.color="var(--bad)"}
+  busy=false;$("#send").disabled=false;
+}
+$("#send").onclick=send;
+$("#q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+init().catch(e=>{$("#banner").style.display="block";$("#banner").textContent="Failed to start: "+e.message});
+</script>
+</body>
+</html>

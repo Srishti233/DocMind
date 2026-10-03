@@ -1,0 +1,29 @@
+# Priya Sharma
+priya.sharma@example.com | +91 98765 43210 | linkedin.com/in/priyasharma | github.com/priyasharma
+
+SUMMARY
+Backend engineer with 8 years of experience building data platforms and APIs.
+
+EXPERIENCE
+Senior Backend Engineer, Northwind Analytics
+Jan 2021 - Present
+- Led migration of the billing pipeline to Kafka, cutting processing latency by 60%.
+- Mentored a team of 5 engineers.
+
+Software Engineer, Contoso Labs
+2017 - 2020
+- Built a REST API serving 2 million requests per day using Python and FastAPI.
+- Reduced cloud costs by 35% through autoscaling.
+
+EDUCATION
+B.Tech in Computer Science, University of Pune, 2016
+
+SKILLS
+Python, SQL, Kafka, FastAPI, PostgreSQL, Docker, Kubernetes
+
+PROJECTS
+OpenLedger
+- Open-source double-entry accounting library with 1,200 GitHub stars.
+
+CERTIFICATIONS
+AWS Certified Solutions Architect (2022)

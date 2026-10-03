@@ -1,0 +1,17 @@
+region,product,units_sold,unit_price,month
+North,Widget,120,9.99,2025-01
+North,Gadget,80,19.5,2025-01
+South,Widget,200,9.99,2025-01
+South,Gadget,50,19.5,2025-01
+East,Widget,90,9.99,2025-01
+East,Gadget,60,19.5,2025-01
+West,Widget,150,9.99,2025-01
+West,Gadget,110,19.5,2025-01
+North,Widget,130,9.99,2025-02
+North,Gadget,70,19.5,2025-02
+South,Widget,210,9.99,2025-02
+South,Gadget,40,19.5,2025-02
+East,Widget,100,9.99,2025-02
+East,Gadget,65,19.5,2025-02
+West,Widget,140,9.99,2025-02
+West,Gadget,120,19.5,2025-02

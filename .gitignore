@@ -1,0 +1,7 @@
+data/
+__pycache__/
+*.pyc
+.venv/
+.env
+.pytest_cache/
+eval/golden.candidates.jsonl
