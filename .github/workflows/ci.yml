@@ -1,0 +1,23 @@
+name: tests
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -r requirements.txt
+      # Offline suite: fake embedding models, in-memory vector store (plus the real embedded
+      # Qdrant store), stub LLM. No model downloads and no Ollama are needed.
+      - run: pytest
+      - run: python -m eval.run_eval --fake --data-dir /tmp/evaldata --out /tmp/results.md
