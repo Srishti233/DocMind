@@ -181,3 +181,4 @@ Check `/health` for live RSS memory, loaded models and Ollama status.
 * CI: `.github/workflows/ci.yml` runs the offline test suite on Python 3.11 and 3.13 for every push;
   `.github/workflows/eval.yml` is a manual job for the real retrieval evaluation.
 * License: MIT (see `LICENSE`; put your own name in the copyright line).
+* <!-- GitHub achievement test -->
